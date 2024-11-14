@@ -390,4 +390,187 @@ ggsave(Time_XDIC,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturba
 ggsave(Time_XTA,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/FLKeys_TimeOnX_TA.jpg",width=8.5*sc,height=(12)*sc)
 
 
+##Additional modifications...
+
+
+thisout2=thisout %>% filter(mod%in%1:2,Sub_region=="MK") %>% 
+  # select(!1:2) %>% 
+  pivot_wider(id_cols = c("Sub_region","HAB","jday"),
+              names_from = "mod",
+              values_from = c("mDIC_mn","mDIC_se","mOmA_mn","mOmA_se","mPAR8_mn","mPAR8_se","mPARm_mn","mPARm_se","mTA_mn","mTA_se","mTemp_mn","mTemp_se" ))
+# thisout2
+
+thisout3=thisout %>% filter(mod<2,Sub_region=="MK") %>% 
+  # select(!1:2) %>% 
+  pivot_wider(id_cols = c("Sub_region","HAB","jday"),
+              names_from = "mod",
+              values_from = c("mDIC_mn","mDIC_se","mOmA_mn","mOmA_se","mPAR8_mn","mPAR8_se","mPARm_mn","mPARm_se","mTA_mn","mTA_se","mTemp_mn","mTemp_se" ))
+# thisout3
+
+#keep all 3 mods #thisout4 not working
+thisout4=thisout %>% filter(Sub_region=="MK") %>% 
+  # pivot_wider(id_cols = c("Sub_region","HAB","jday","mod"),
+    pivot_wider(id_cols = c("Sub_region","HAB","jday"),
+              names_from = "mod",
+              values_from = c("mDIC_mn","mDIC_se","mOmA_mn","mOmA_se","mPAR8_mn","mPAR8_se","mPARm_mn","mPARm_se","mTA_mn","mTA_se","mTemp_mn","mTemp_se" ))
+
+
+##!!DelPlots is the plot IU want to loop through for each site 
+#save to folder for each region and zone
+#assess how trends hold accross sites
+#should I rerun the input so that I'm using the correct model (without oceanic??) ---- I think yes.
+
+jday_qtr=c(1,92,183,274)
+qtr_name=c("Jan","Mar","Jun","Sep");qtr_name
+refout=thisout %>% filter(mod==1,Sub_region=="MK") %>% arrange(Sub_region,HAB,jday) %>% rename(mDIC_mn_1=mDIC_mn,mTA_mn_1=mTA_mn)
+qtr_ann=refout %>% filter(jday%in%jday_qtr)
+DelJday=thisout2 %>% ggplot(aes(x=mDIC_mn_1,y=mTA_mn_1,color=jday))+
+  geom_segment(aes(xend=mDIC_mn_2,yend=mTA_mn_2),arrow = arrow(length = unit(0.5, "cm")),linewidth=1)+
+  facet_grid(Sub_region~HAB)+
+  scale_color_distiller(name="Julian Day",palette = "Spectral")+
+  geom_point(size=2,color="gray50",data=refout,alpha=.5)+
+  geom_path(color="gray50",data=refout,alpha=.5)+
+  theme_bw()+ylab("TA")+xlab("DIC")+ggtitle("Weekly Climatology of modeled TA/DIC, Perturbed by doubling 'biomass'")
+DelTemp=thisout2 %>% ggplot(aes(x=mDIC_mn_1,y=mTA_mn_1,color=mTemp_mn_1))+
+  geom_segment(aes(xend=mDIC_mn_2,yend=mTA_mn_2),arrow = arrow(length = unit(0.5, "cm")),linewidth=1)+
+  facet_grid(Sub_region~HAB)+
+  scale_color_distiller(name="Water Temperature (deg C)",palette = "RdYlBu")+
+  geom_point(size=2,color="gray50",data=refout,alpha=.5)+
+  geom_path(color="gray50",data=refout,alpha=.5)+
+  theme_bw()+ylab("TA")+xlab("DIC")
+DelPAR=thisout2 %>% ggplot(aes(x=mDIC_mn_1,y=mTA_mn_1,color=mPAR8_mn_1))+
+  geom_segment(aes(xend=mDIC_mn_2,yend=mTA_mn_2),arrow = arrow(length = unit(0.5, "cm")),linewidth=1)+
+  facet_grid(Sub_region~HAB)+
+  # scale_color_viridis(name="Photosynthetically Active Radiation (uE)",palette = "inferno")+
+  scale_color_distiller(name="Photosynthetically Active Radiation (uE)",palette = "PRGn")+
+  geom_point(size=2,color="gray50",data=refout,alpha=.5)+
+  geom_path(color="gray50",data=refout,alpha=.5)+
+  theme_bw()+ylab("TA")+xlab("DIC")
+DelPlots=DelJday/DelTemp/DelPAR+plot_layout(guides = "collect")&theme(legend.position = "bottom")
+
+DelPlots
+sc=1.25
+# ggsave(DelPlots,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/FLKeys_DeltaDICTAArrows_DoubleCover2.jpg",width=11*sc,height=11*sc)
+# ggsave(DelJday,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/FLKeys_DeltaDICTAArrows_DoubleCover_DelJday.jpg",width=12*sc,height=5*sc)
+
+
+
+#delta plots for halving biomass
+jday_qtr=c(1,92,183,274)
+qtr_name=c("Jan","Mar","Jun","Sep");qtr_name
+refout=thisout %>% filter(mod==1,Sub_region=="MK") %>% arrange(Sub_region,HAB,jday) %>% rename(mDIC_mn_1=mDIC_mn,mTA_mn_1=mTA_mn)
+qtr_ann=refout %>% filter(jday%in%jday_qtr)
+DelJday.5=thisout3 %>% ggplot(aes(x=mDIC_mn_1,y=mTA_mn_1,color=jday))+
+  geom_segment(aes(xend=mDIC_mn_0.5,yend=mTA_mn_0.5),arrow = arrow(length = unit(0.5, "cm")),linewidth=1)+
+  facet_grid(Sub_region~HAB)+
+  scale_color_distiller(name="Julian Day",palette = "Spectral")+
+  geom_point(size=2,color="gray50",data=refout,alpha=.5)+
+  geom_path(color="gray50",data=refout,alpha=.5)+
+  theme_bw()+ylab("TA")+xlab("DIC")+ggtitle("Weekly Climatology of modeled TA/DIC, Perturbed by halving 'biomass'")
+DelTemp.5=thisout3 %>% ggplot(aes(x=mDIC_mn_1,y=mTA_mn_1,color=mTemp_mn_1))+
+  geom_segment(aes(xend=mDIC_mn_0.5,yend=mTA_mn_0.5),arrow = arrow(length = unit(0.5, "cm")),linewidth=1)+
+  facet_grid(Sub_region~HAB)+
+  scale_color_distiller(name="Water Temperature (deg C)",palette = "RdYlBu")+
+  geom_point(size=2,color="gray50",data=refout,alpha=.5)+
+  geom_path(color="gray50",data=refout,alpha=.5)+
+  theme_bw()+ylab("TA")+xlab("DIC")
+DelPAR.5=thisout3 %>% ggplot(aes(x=mDIC_mn_1,y=mTA_mn_1,color=mPAR8_mn_1))+
+  geom_segment(aes(xend=mDIC_mn_0.5,yend=mTA_mn_0.5),arrow = arrow(length = unit(0.5, "cm")),linewidth=1)+
+  facet_grid(Sub_region~HAB)+
+  # scale_color_viridis(name="Photosynthetically Active Radiation (uE)",palette = "inferno")+
+  scale_color_distiller(name="Photosynthetically Active Radiation (uE)",palette = "PRGn")+
+  geom_point(size=2,color="gray50",data=refout,alpha=.5)+
+  geom_path(color="gray50",data=refout,alpha=.5)+
+  theme_bw()+ylab("TA")+xlab("DIC")
+DelPlots.5=DelJday.5/DelTemp.5/DelPAR.5+plot_layout(guides = "collect")&theme(legend.position = "bottom")
+DelPlots.5
+DelJday.5
+sc=1.25
+# ggsave(DelPlots.5,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/FLKeys_DeltaDICTAArrows_HalfCover2.jpg",width=11*sc,height=11*sc)
+# ggsave(DelJday.5,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/FLKeys_DeltaDICTAArrows_HalfCover_DelJday.jpg",width=12*sc,height=5*sc)
+
+###
+# compare seagrass: 
+sgDelJday.5=thisout3 %>% filter(HAB=="SG") %>% ggplot(aes(x=mDIC_mn_1,y=mTA_mn_1,color=jday))+
+  geom_segment(aes(xend=mDIC_mn_0.5,yend=mTA_mn_0.5),arrow = arrow(length = unit(0.5, "cm")),linewidth=1)+
+  # facet_grid(Sub_region~HAB)+
+  scale_color_distiller(name="Julian Day",palette = "Spectral")+
+  geom_point(size=2,color="gray50",data=refout,alpha=.5)+
+  geom_path(color="gray50",data=refout,alpha=.5)+
+  ggtitle("Half Seagrass Biomass")+
+  theme_bw()+ylab("TA")+xlab("DIC")#+ggtitle("Weekly Climatology of modeled TA/DIC, Perturbed by halving 'biomass'")
+sgDelJday.5
+
+sgDelJday=thisout2  %>% filter(HAB=="SG") %>% ggplot(aes(x=mDIC_mn_1,y=mTA_mn_1,color=jday))+
+  geom_segment(aes(xend=mDIC_mn_2,yend=mTA_mn_2),arrow = arrow(length = unit(0.5, "cm")),linewidth=1)+
+  # facet_grid(Sub_region~HAB)+
+  scale_color_distiller(name="Julian Day",palette = "Spectral")+
+  geom_point(size=2,color="gray50",data=refout,alpha=.5)+
+  geom_path(color="gray50",data=refout,alpha=.5)+
+  ggtitle("Double Seagrass Biomass")+
+  theme_bw()+ylab("TA")+xlab("DIC")#+ggtitle("Weekly Climatology of modeled TA/DIC, Perturbed by doubling 'biomass'")
+sgMOD = sgDelJday.5+sgDelJday
+sgMOD
+# ggsave(sgMOD,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/seagrassMod.jpg",width=12*sc,height=5*sc)
+
+
+
+
+SGf =thisout4 %>% filter(HAB=="SG") %>% ggplot(aes(x=mDIC_mn_1,y=mTA_mn_1,color=jday))+
+  geom_segment(aes(xend=mDIC_mn_2,yend=mTA_mn_2),arrow = arrow(length = unit(0.5, "cm")),linewidth=.75,color='#5ab4ac')+
+  geom_segment(aes(xend=mDIC_mn_0.5,yend=mTA_mn_0.5),arrow = arrow(length = unit(0.5, "cm")),linewidth=.75,color='#d8b365')+
+  scale_color_distiller(name="Julian Day",palette = "Spectral")+
+  geom_point(size=2,color="gray50",data=refout,alpha=.5)+
+  geom_path(color="gray50",data=refout,alpha=.5)+
+  ggtitle("Half Seagrass Biomass")+
+  theme_bw()+ylab("TA")+xlab("DIC")+ggtitle("Perturb Seagrass Biomass")
+
+ALf =thisout4 %>% filter(HAB=='AL') %>% ggplot(aes(x=mDIC_mn_1,y=mTA_mn_1,color=jday))+
+  geom_segment(aes(xend=mDIC_mn_2,yend=mTA_mn_2),arrow = arrow(length = unit(0.5, "cm")),linewidth=.75,color='#5ab4ac')+
+  geom_segment(aes(xend=mDIC_mn_0.5,yend=mTA_mn_0.5),arrow = arrow(length = unit(0.5, "cm")),linewidth=.75,color='#d8b365')+
+  scale_color_distiller(name="Julian Day",palette = "Spectral")+
+  geom_point(size=2,color="gray50",data=refout,alpha=.5)+
+  geom_path(color="gray50",data=refout,alpha=.5)+
+  ggtitle("Half Seagrass Biomass")+
+  theme_bw()+ylab("TA")+xlab("DIC")+ggtitle("Perturb NonCalc Algae Biomass")
+
+CCf =thisout4 %>% filter(HAB=="CC") %>% ggplot(aes(x=mDIC_mn_1,y=mTA_mn_1,color=jday))+
+  geom_segment(aes(xend=mDIC_mn_2,yend=mTA_mn_2),arrow = arrow(length = unit(0.5, "cm")),linewidth=.75,color='#5ab4ac')+
+  geom_segment(aes(xend=mDIC_mn_0.5,yend=mTA_mn_0.5),arrow = arrow(length = unit(0.5, "cm")),linewidth=.75,color='#d8b365')+
+  scale_color_distiller(name="Julian Day",palette = "Spectral")+
+  geom_point(size=2,color="gray50",data=refout,alpha=.5)+
+  geom_path(color="gray50",data=refout,alpha=.5)+
+  ggtitle("Half Seagrass Biomass")+
+  theme_bw()+ylab("TA")+xlab("DIC")+ggtitle("Perturb Calcifier Biomass")
+
+biof= ALf+CCf+SGf
+biof
+
+sc=1.25
+# ggsave(SGf,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/half_and_double_SG.jpg",width=5*sc,height=5*sc)
+# ggsave(biof,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/oppposing.biomass.mod.jpg",width=12*sc,height=5*sc)
+
+
+#facet by hab
+# New facet label names for HAB
+hab.labs <- c("Seagrass", "Calcifiers", "Noncalcifying Algae")
+names(hab.labs) <- c("SG", "CC", "AL")
+
+sr.labs <- c("Biscayne", "Upper Keys", "Middle Keys", "Lower Keys")
+names(sr.labs) <- c("BB", "UK", "MK", "LK")
+
+ALL =thisout4 %>% ggplot(aes(x=mDIC_mn_1,y=mTA_mn_1,color=jday))+
+  geom_segment(aes(xend=mDIC_mn_2,yend=mTA_mn_2),arrow = arrow(length = unit(0.5, "cm")),linewidth=.75,color='#5ab4ac')+
+  geom_segment(aes(xend=mDIC_mn_0.5,yend=mTA_mn_0.5),arrow = arrow(length = unit(0.5, "cm")),linewidth=.75,color='#d8b365')+
+  facet_grid(Sub_region~HAB,labeller=labeller(HAB=hab.labs, Sub_region=sr.labs))+
+  scale_color_distiller(name="Julian Day",palette = "Spectral")+
+  geom_point(size=2,color="gray50",data=refout,alpha=.5)+
+  geom_path(color="gray50",data=refout,alpha=.5)+
+  # ggtitle("Half Seagrass Biomass")+
+  theme_bw()+ylab("TA")+xlab("DIC")+ggtitle("Weekly Climatology of modeled TA/DIC, Perturbed by halving OR doubling 'biomass'")
+
+ALL
+sc=1.25
+ggsave(ALL,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/ALL.oppposing.biomass.mod.jpg",width=12*sc,height=5*sc)
+
 
