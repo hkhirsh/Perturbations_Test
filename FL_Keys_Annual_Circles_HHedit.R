@@ -1,18 +1,23 @@
+#loop through perturbation tests
+#latest edit: 
+#jan 28 2025
+
+
 library(seacarb)
 library(tidyverse)
 library(patchwork)
 library(MuMIn)
 library(ggtext)
-
-# install.packages("devtools")
-library(devtools)
+library(seacarb)
+library(devtools) # install.packages("devtools")
 # devtools::install_github("coatless/cetcolor")
 # install_github('coatless/cetcolor')
 library(cetcolor)
 
 se=function(x){return(sd(x,na.rm=T)/sqrt(length(x)))}
 
-mod=read.csv("/Users/heidi.k.hirsh/Desktop/GBC_Submission_2024/Figures/FLK.Manuscript.Figures/6days_modification/CCmod.allHab.csv")
+# mod=read.csv("/Users/heidi.k.hirsh/Desktop/GBC_Submission_2024/Figures/FLK.Manuscript.Figures/6days_modification/CCmod.allHab.csv")
+mod=read.csv("Perturbations_InputData/CCmod.allHab.csv")
 
 carbAL=carb(flag=15,var1=mod$AL.mTA/10^6,var2=mod$AL.mDIC/10^6,S = mod$Salinity_Bottle,T=mod$Temperature_C)
 carbCC=carb(flag=15,var1=mod$CC.mTA/10^6,var2=mod$CC.mDIC/10^6,S = mod$Salinity_Bottle,T=mod$Temperature_C)
@@ -109,8 +114,9 @@ DubPlot=thisout %>% filter(mod %in% c(2)) %>% #,HAB=="CC",Sub_region=="MK") %>%
   theme_bw()+ylab("TA")+xlab("DIC")
 DubPlot
 
-sc=1.25
+sc=1.25 
 # ggsave(DubPlot,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/FLKeys_Double_Cover_Perturbation.jpg",width=11*sc,height=8.5*sc)
+ggsave(DubPlot,filename = "/Users/heidi.k.hirsh/Desktop/perturb_jan28/FLKeys_Double_Cover_Perturbation.jpg",width=11*sc,height=8.5*sc)
 
 
 #Just MK
@@ -139,6 +145,9 @@ DubPlotMK
 
 sc=1.25
 # ggsave(DubPlotMK,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/FLKeys_Double_Cover_PerturbationMK.jpg",width=11*sc,height=(11/3)*sc)
+ggsave(DubPlotMK,filename = "/Users/heidi.k.hirsh/Desktop/perturb_jan28/FLKeys_Double_Cover_PerturbationMK.jpg",width=11*sc,height=(11/3)*sc)
+
+
 
 #Just MK - Omega A
 refout=thisout %>% filter(mod==1,Sub_region=="MK") %>% arrange(Sub_region,HAB,jday)
@@ -163,6 +172,7 @@ DubPlotMK_TOm=thisout %>% filter(mod %in% c(2),Sub_region=="MK") %>% #,HAB=="CC"
   theme_bw()+ylab("Aragonite Saturation State")+xlab("Temperature (deg C)")+theme(legend.position = "bottom")
 DubPlotMK_TOm
 # ggsave(DubPlotMK_TOm,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/FLKeys_Double_Cover_PerturbationMK_tempOmega.jpg",width=11*sc,height=(11/3)*sc)
+ggsave(DubPlotMK_TOm,filename = "/Users/heidi.k.hirsh/Desktop/perturb_jan28/FLKeys_Double_Cover_PerturbationMK_tempOmega.jpg",width=11*sc,height=(11/3)*sc)
 
 
 #Just MK - PAR
@@ -188,12 +198,14 @@ DubPlotMK_PAROm=thisout %>% filter(mod %in% c(2),Sub_region=="MK") %>% #,HAB=="C
   theme_bw()+ylab("Aragonite Saturation State")+xlab("Photosynthetically Active Radiation (Monthly-uE)")+theme(legend.position = "bottom")
 DubPlotMK_PAROm
 # ggsave(DubPlotMK_PAROm,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/FLKeys_Double_Cover_PerturbationMK_PARomega.jpg",width=11*sc,height=(11/3)*sc)
+ggsave(DubPlotMK_PAROm,filename = "/Users/heidi.k.hirsh/Desktop/perturb_jan28/FLKeys_Double_Cover_PerturbationMK_PARomega.jpg",width=11*sc,height=(11/3)*sc)
 
 
 TADC_TeOm=DubPlotMK/DubPlotMK_TOm/DubPlotMK_PAROm+plot_layout(guides = "collect")&theme(legend.position = "bottom")
 TADC_TeOm
 sc=1.25
 # ggsave(TADC_TeOm,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/FLKeys_Double_Cover_TADIC_TempOmA_PAROmA.jpg",width=11*sc,height=(12)*sc)
+ggsave(TADC_TeOm,filename = "/Users/heidi.k.hirsh/Desktop/perturb_jan28/FLKeys_Double_Cover_TADIC_TempOmA_PAROmA.jpg",width=11*sc,height=(12)*sc)
 
 
 
@@ -350,7 +362,7 @@ Time_Temp=thisout %>% filter(mod %in% c(2),Sub_region=="MK",HAB=="CC") %>% #,HAB
   #scale_color_gradientn(colours = c("yellow", "blue", "red", "green", "yellow"), values = c(0, 90, 180, 270, 360)/360)+
   theme_bw()+ylab("Temperature")+xlab("Julian Day of Year")+
   theme(legend.position = "bottom")
-# Time_Temp
+Time_Temp
 
 
 
@@ -385,9 +397,9 @@ Time_XDIC
 
 
 sc=.9
-ggsave(Time_XOm,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/FLKeys_TimeOnX_OMA.jpg",width=8.5*sc,height=(12)*sc)
-ggsave(Time_XDIC,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/FLKeys_TimeOnX_DIC.jpg",width=8.5*sc,height=(12)*sc)
-ggsave(Time_XTA,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/FLKeys_TimeOnX_TA.jpg",width=8.5*sc,height=(12)*sc)
+# ggsave(Time_XOm,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/FLKeys_TimeOnX_OMA.jpg",width=8.5*sc,height=(12)*sc)
+# ggsave(Time_XDIC,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/FLKeys_TimeOnX_DIC.jpg",width=8.5*sc,height=(12)*sc)
+# ggsave(Time_XTA,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/FLKeys_TimeOnX_TA.jpg",width=8.5*sc,height=(12)*sc)
 
 
 ##Additional modifications...
@@ -452,6 +464,7 @@ DelPlots
 sc=1.25
 # ggsave(DelPlots,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/FLKeys_DeltaDICTAArrows_DoubleCover2.jpg",width=11*sc,height=11*sc)
 # ggsave(DelJday,filename = "/Users/heidi.k.hirsh/Desktop/Forecast_Home/Perturbation_Plots/FLKeys_DeltaDICTAArrows_DoubleCover_DelJday.jpg",width=12*sc,height=5*sc)
+ggsave(DelJday,filename = "/Users/heidi.k.hirsh/Desktop/perturb_jan28/FLKeys_DeltaDICTAArrows_DoubleCover_DelJday.jpg",width=12*sc,height=5*sc)
 
 
 
